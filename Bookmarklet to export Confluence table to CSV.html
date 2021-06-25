@@ -61,33 +61,33 @@ img.inline {
 						head.appendChild(script);
 				}
 
-				function getParaText(selector) {
+				function getParaText(selector, prefix = '') {
 						var result = jQuery(selector).html();
 						if(result.indexOf('<br>') < 0) {
-								result = jQuery(selector).text();
+								result = prefix + jQuery(selector).text();
 						} else {
 								result = result.
-									replace(/<br *\/?>/g, '\r\n'). /* replace <br> */
-									replace(/[\x20\x09]*[\r\n]+[\x20\x09]*/g,
-													'\r\n'); /* normalize line breaks and surrounding space */
+										replace(/<br *\/?>/g, '\r\n'). /* replace <br> */
+										replace(/[\x20\x09]*[\r\n]+[\x20\x09]*/g,
+														'\r\n'); /* normalize line breaks and surrounding space */
 						}
 						return '\r\n' + result.trim();
 				}
 
 				function convertTableCell(cell) {
 						var result = '';
-						if(jQuery('div', cell).length) {
-								jQuery('div', cell).each(function(){
-										result += getParaText(this);
-								});
-						} else if(jQuery('ul', cell).length) {
-								jQuery('ul > li', cell).each(function(){
-										result += getParaText(this);
-								});
-						} else if(jQuery('p', cell).length) {
-								jQuery('p', cell).each(function(){
-										result += getParaText(this);
-								});
+						var blocks = jQuery('div, ul, p', cell);
+						if(blocks.length) {
+								blocks.each(function() {
+												if(this.nodeName == 'UL') {
+														jQuery('li').each(function() {
+																		if(result == '') { result += '\x27'; }
+																		result += getParaText(this, '\u2022 ');
+																});
+												} else {
+														result += getParaText(this);
+												}
+										});
 						} else {
 								result += getParaText(cell);
 						}
@@ -99,42 +99,42 @@ img.inline {
 				}
 
 				function downloadCSVFile(filename, mime, text) {
-								var pom = document.createElement('a');
-								pom.setAttribute('href', 'data:' + mime +
-										';charset=iso-8859-1,%EF%BB%BF' + encodeURIComponent(text));
-								pom.setAttribute('download', filename);
-								document.body.appendChild(pom);
-								pom.click();
-								document.body.removeChild(pom);
+						var pom = document.createElement('a');
+						pom.setAttribute('href', 'data:' + mime +
+								';charset=iso-8859-1,%EF%BB%BF' + encodeURIComponent(text));
+						pom.setAttribute('download', filename);
+						document.body.appendChild(pom);
+						pom.click();
+						document.body.removeChild(pom);
 				}
 
 				function addCSVLinks() {
+						jQuery('.csvLink').remove();
+
+						jQuery('table').each(function(index){
+								jQuery(this).attr('data-csvtable', index)
+										.before('<a href=\x22#\x22 class=\x22csvLink\x22 ' +
+												'data-forcsvtable=\x22' + index + '\x22>Export table to CSV</a>');
+						});
+
+						jQuery('.csvLink').click(function(){
+								var text = '';
+								var csvTableIndex = jQuery(this).attr('data-forcsvtable');
+								jQuery('table[data-csvtable=\x22' + csvTableIndex + '\x22] tr').each(function(){
+										if(jQuery(this).parent(':hidden').length) {
+												return;
+										}
+										jQuery('td, th', this).each(function(index){
+												if(index != 0) { text += ';'; }
+												text += '\x22';
+												text += convertTableCell(this);
+												text += '\x22';
+										});
+										text += '\r\n';
+								});
 								jQuery('.csvLink').remove();
-
-								jQuery('table').each(function(index){
-												jQuery(this).attr('data-csvtable', index)
-													 .before('<a href=\22#\x22 class=\x22csvLink\x22 ' +
-													 'data-forcsvtable=\x22' + index + '\x22>Export table to CSV file</a>');
-								});
-
-								jQuery('.csvLink').click(function(){
-												var text = '';
-												var csvTableIndex = jQuery(this).attr('data-forcsvtable');
-												jQuery('table[data-csvtable=\x22' + csvTableIndex + '\x22] tr').each(function(){
-																if(jQuery(this).parent(':hidden').length) {
-																		return;
-																}
-																jQuery('td, th', this).each(function(index){
-																				if(index != 0) { text += ';'; }
-																				text += '\x22';
-																				text += convertTableCell(this);
-																				text += '\x22';
-																});
-																text += '\r\n';
-												});
-												jQuery('.csvLink').remove();
-												downloadCSVFile('Confluence-Table.csv', 'text/csv', text);
-								});
+								downloadCSVFile('Confluence-Table.csv', 'text/csv', text);
+						});
 				}
 
 				provideJqueryAndCall(function(){ addCSVLinks(); });
