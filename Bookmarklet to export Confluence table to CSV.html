@@ -89,7 +89,7 @@ span.link {
 						if(blocks.length) {
 								blocks.each(function() {
 												if(this.nodeName == 'UL') {
-														jQuery('li').each(function() {
+														jQuery('li', this).each(function() {
 																		if(result == '') { result += '\x27'; }
 																		result += getParaText(this, '\u2022 ');
 																});
