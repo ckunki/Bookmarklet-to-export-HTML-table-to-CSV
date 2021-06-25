@@ -26,17 +26,26 @@ a.drag {
 	font-size: 9pt;
 	background-color: #dad7d0;
 	border-radius: 5pt;
+	position: relative;
+	top: -2px;
 }
 img.inline {
 	position: relative;
 	top: 3px;
+}
+ol.wide li, div.wide {
+	margin: 5px 0px 5px 0px;
+}
+span.link {
+	color: blue;
+	text-decoration: underline;
 }
 </style>
 </head>
 <body>
 
 <p>Usage:</p>
-<ol>
+<ol class="wide">
 	<li>Just <b>drag the following link</b> to the bookmark area or menu of your browser:
 				<a class="button-like drag" href="javascript:(function(){
 
@@ -138,12 +147,15 @@ img.inline {
 				}
 
 				provideJqueryAndCall(function(){ addCSVLinks(); });
-})();">Export Confluence table to CSV</a>
-	<div style="margin: 5px 0px 5px 0px;"> or use right-click and select
-					<span class="button button-like">Bookmark This Link</span>.</div></li>
+})();">Export Confluence table to CSV</a> <!-- " -->
+	<div class="wide"> or use right-click and select <span class="button button-like">Bookmark This Link</span>.</div></li>
 <li>Visit a Confluence page that contains a table.</li>
-<li>In the bookmark area or menu of your browser: press the button <span class="button button-like"
-	><img class="inline" src="globe.png"/> Export Confluence table to CSV</span>.</li>
+<li>In the bookmark area or menu of your browser: press the button
+	<span class="button button-like" ><img class="inline" src="globe.png"/>
+	Export Confluence table to CSV</span>.</li>
+<li>The script then will display a link <span class="link">Export table to CSV</span> above
+	each table on the current page.</li>
+<li>In order to export the table below the link simply click on the link.</li>
 </ol>
 
 <div style="padding-top: 70px;" />
